@@ -17,6 +17,12 @@
                 <br>
                 <span id="post{{ post.id }}">{{ post.title }}</span>
                 <div>{{post.body | safe }}</div>
+                {% if post.author.username == current_user.username %}
+                    <span>
+                    <a href="edit_post/{{post.id}}" class="btn btn-default">Edit Post</a>
+                    <a href="delete_post/{{post.id}}" class="btn btn-default pull-right">Delete</a>
+                    </span>
+                {% endif %}
             </td>
         </tr>
     </table>

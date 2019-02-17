@@ -63,6 +63,9 @@
     {{ moment.include_moment() }}
     {{ moment.lang(g.locale) }}
     <script>
+    $(function() {
+        // write start up code here
+    });
         function translate(sourceElem, destElem, sourceLang, destLang) {
             $(destElem).html('<img src="{{ url_for('static', filename='loading.gif') }}">');
             $.post('/translate', {

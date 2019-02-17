@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    {{ ckeditor.load_code_theme() }}
+    <h1>{{ _('Edit Post') }}</h1>
+    <div class="row">
+        <div>
+            {{ wtf.quick_form(form) }}
+        </div>
+    </div>
+    {{ ckeditor.load() }}
+	{{ ckeditor.config(name='body') }}
+{% endblock %}

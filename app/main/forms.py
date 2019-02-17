@@ -22,6 +22,10 @@ class EditProfileForm(FlaskForm):
             if user is not None:
                 raise ValidationError(_('Please use a different username.'))
 
+class EditPostForm(FlaskForm):
+    title = StringField(_l('Title'), validators=[DataRequired()])
+    body = CKEditorField('Post Body', validators=[DataRequired()])
+    submit = SubmitField(_l('Submit'))
 
 class PostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])

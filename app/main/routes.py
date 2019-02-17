@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 from guess_language import guess_language
 from app import db
-from app.main.forms import EditProfileForm, PostForm
+from app.main.forms import EditProfileForm, PostForm, EditPostForm
 from app.models import User, Post
 from app.translate import translate
 from app.main import bp
@@ -106,6 +106,40 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', title=_('Edit Profile'),
                            form=form)
+
+@bp.route('/edit_post/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_post(id):
+    post = db.session.query(Post).filter(Post.id == id).first()
+    form = EditPostForm(current_user.username)
+    if request.method == 'POST':
+        title = request.form['title']
+        body = request.form['body']
+
+        post.title = title
+        post.body = body
+        db.session.commit()
+        flash(_('Your changes have been saved.'))
+        return redirect(url_for('main.index', id=id))
+    elif request.method == 'GET':
+        form.title.data = post.title
+        form.body.data = post.body
+        return render_template('edit_post.html', title=_('Edit Post'),post=post, form=form)
+
+
+@bp.route('/delete_post/<int:id>', methods=['GET', 'POST'])
+@login_required
+def delete_post(id):
+    db.session.query(Post).filter(Post.id == id).delete()
+    db.session.commit()
+    flash(_('Post has been deleted!'))
+    return redirect(url_for('main.index'))
+
+@bp.route('/user/<username>/popup')
+@login_required
+def user_popup(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    return render_template('user_popup.html', user=user)
 
 
 @bp.route('/follow/<username>')
