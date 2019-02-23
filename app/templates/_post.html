@@ -8,9 +8,11 @@
             </td>
             <td>
                 {% set user_link %}
-                    <a href="{{ url_for('main.user', username=post.author.username) }}">
-                        {{ post.author.username }}
-                    </a>
+                    <span class="user_popup">
+                        <a href="{{ url_for('main.user', username=post.author.username) }}">
+                            {{ post.author.username }}
+                        </a>
+                    </span>
                 {% endset %}
                 {{ _('%(username)s posted %(when)s',
                     username=user_link, when=moment(post.timestamp).fromNow()) }}
@@ -23,6 +25,7 @@
                     <a href="delete_post/{{post.id}}" class="btn btn-default pull-right">Delete</a>
                     </span>
                 {% endif %}
+            <a href="#">Read more...</a>
             </td>
         </tr>
     </table>

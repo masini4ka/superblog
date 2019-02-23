@@ -34,6 +34,11 @@ class PostForm(FlaskForm):
     body = CKEditorField('Post Body', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+class MessageForm(FlaskForm):
+    message = TextAreaField(_l('Message'), validators=[
+        DataRequired(), Length(min=0, max=140)])
+    submit = SubmitField(_l('Submit'))
+
 class SearchForm(FlaskForm):
     q = StringField(_l('Search'), validators=[DataRequired()])
 

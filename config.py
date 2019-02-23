@@ -15,4 +15,5 @@ class Config(object):
     POSTS_PER_PAGE = 5
     LANGUAGES = ['en', 'ru']
     CKEDITOR_PKG_TYPE='full'
-    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL') or 'http://localhost:9200'
+    # ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL') or 'http://localhost:9200'
+    ELASTICSEARCH_URL = 'http://localhost:9200'
