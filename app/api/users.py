@@ -1,3 +1,5 @@
+from sqlalchemy import null
+
 from app.api import bp
 from flask import jsonify
 from app.models import User
@@ -5,7 +7,6 @@ from flask import request
 from flask import url_for
 from app import db
 from app.api.errors import bad_request
-from flask import g, abort
 from app.api.auth import token_auth
 
 @bp.route('/users/<int:id>', methods=['GET'])
@@ -62,9 +63,14 @@ def create_user():
 @bp.route('/users/<int:id>', methods=['PUT'])
 @token_auth.login_required
 def update_user(id):
-    if g.current_user.id != id:
-        abort(403)
-    user = User.query.get_or_404(id)
+    auth_header = request.headers["Authorization"]
+    auth_header = auth_header.split()
+    current_user = User.check_token(auth_header[1])
+    if current_user.id != id:
+        response=jsonify('you cannot edit other users profile')
+        response.status_code = 403
+        return response
+    user = user = User.query.get_or_404(id)
     data = request.get_json() or {}
     if 'username' in data and data['username'] != user.username and \
             User.query.filter_by(username=data['username']).first():

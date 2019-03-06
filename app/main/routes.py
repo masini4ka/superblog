@@ -92,6 +92,7 @@ def explore():
         if posts.has_next else None
     prev_url = url_for('main.explore', page=posts.prev_num) \
         if posts.has_prev else None
+    # print(posts.items)
     return render_template('index.html', title=_('Explore'),
                            posts=posts.items, next_url=next_url,
                            prev_url=prev_url)
@@ -162,10 +163,12 @@ def edit_profile():
 def edit_post(id):
     post = db.session.query(Post).filter(Post.id == id).first()
     form = EditPostForm(current_user.username)
-    if request.method == 'POST':
+    if (current_user.id!= post.user_id):
+        flash(_('You can only change your posts.'))
+        return redirect(url_for('main.index'))
+    elif (request.method == 'POST'):
         title = request.form['title']
         body = request.form['body']
-
         post.title = title
         post.body = body
         db.session.commit()
@@ -175,6 +178,12 @@ def edit_post(id):
         form.title.data = post.title
         form.body.data = post.body
         return render_template('edit_post.html', title=_('Edit Post'),post=post, form=form)
+
+@bp.route('/show_post/<int:id>', methods=['GET'])
+@login_required
+def show_post(id):
+    post = db.session.query(Post).filter(Post.id == id).first()
+    return render_template('_post.html', title=_('Post'),post=post)
 
 
 @bp.route('/delete_post/<int:id>', methods=['GET', 'POST'])

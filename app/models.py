@@ -48,7 +48,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    posts = db.relationship('Post', backref='author', lazy='dynamic')
+    posts = db.relationship('Post', cascade="all,delete", backref='author', lazy='dynamic')
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     notifications = db.relationship('Notification', backref='user',
@@ -90,6 +90,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
         if user is None or user.token_expiration < datetime.utcnow():
             return None
         return user
+
 
     def add_notification(self, name, data):
         self.notifications.filter_by(name=name).delete()
@@ -230,17 +231,38 @@ class SearchableMixin(object):
 db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
 db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
-class Post(SearchableMixin, db.Model):
+class Post(PaginatedAPIMixin, SearchableMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(140))
     body = db.Column(db.Text())
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    modifiedat= db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     language = db.Column(db.String(5))
     __searchable__ = ['body']
 
+    def to_dict(self):
+        data = {
+            'id': self.id,
+            'title': self.title,
+            'body': self.body,
+            'timestamp': self.timestamp,
+            'author': self.user_id,
+            '_links': {
+                'self': url_for('api1.get_post', id=self.id),
+            }
+        }
+        return data
+
+    def from_dict(self, data):
+        for field in ['title', 'body']:
+            if field in data:
+                setattr(self, field, data[field])
+
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
